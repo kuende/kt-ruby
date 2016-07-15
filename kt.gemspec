@@ -18,9 +18,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
-  # testing
-  spec.add_dependency "rest-client", "~> 1.8.0"
+  spec.add_dependency "excon", "~> 0.51.0"
+  spec.add_dependency "connection_pool", "~> 2.2.0"
 
+  # testing
   spec.add_development_dependency "bundler", ">= 1.3"
   spec.add_development_dependency "rspec", "~> 3.4.0"
   spec.add_development_dependency "pry", "~> 0.10.4"

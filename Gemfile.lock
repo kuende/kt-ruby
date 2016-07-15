@@ -2,28 +2,21 @@ PATH
   remote: .
   specs:
     kt (0.1.0)
-      rest-client (~> 1.8.0)
+      connection_pool (~> 2.2.0)
+      excon (~> 0.51.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
     coderay (1.1.1)
+    connection_pool (2.2.0)
     diff-lcs (1.2.5)
-    domain_name (0.5.20160615)
-      unf (>= 0.0.5, < 1.0.0)
-    http-cookie (1.0.2)
-      domain_name (~> 0.5)
+    excon (0.51.0)
     method_source (0.8.2)
-    mime-types (2.99.2)
-    netrc (0.11.0)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rest-client (1.8.0)
-      http-cookie (>= 1.0.2, < 2.0)
-      mime-types (>= 1.16, < 3.0)
-      netrc (~> 0.7)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -38,9 +31,6 @@ GEM
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
     slop (3.6.0)
-    unf (0.1.4)
-      unf_ext
-    unf_ext (0.0.7.2)
 
 PLATFORMS
   ruby
