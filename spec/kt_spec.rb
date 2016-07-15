@@ -147,4 +147,46 @@ describe KT do
       expect(@kt.count).to eql(0)
     end
   end
+
+  describe "cas" do
+    describe "with old and new" do
+      it "sets new value if old value is correct and returns true" do
+        @kt.set("cas:1", "1")
+        expect(@kt.cas("cas:1", "1", "2")).to eql(true)
+        expect(@kt.get("cas:1")).to eql("2")
+      end
+
+      it "returns false if old value is not equal" do
+        @kt.set("cas:2", "3")
+        expect(@kt.cas("cas:2", "1", "2")).to eql(false)
+        expect(@kt.get("cas:2")).to eql("3")
+      end
+    end
+
+    describe "without old value" do
+      it "sets the value if no record exists in db and returns true" do
+        expect(@kt.cas("cas:3", nil, "5")).to eql(true)
+        expect(@kt.get("cas:3")).to eql("5")
+      end
+
+      it "returns false if record exists in db" do
+        @kt.set("cas:4", "2")
+        expect(@kt.cas("cas:4", nil, "5")).to eql(false)
+        expect(@kt.get("cas:4")).to eql("2")
+      end
+    end
+
+    describe "without new value" do
+      it "removes record if it exists in db and returns true" do
+        @kt.set("cas:5", "1")
+        expect(@kt.cas("cas:5", "1", nil)).to eql(true)
+        expect(@kt.get("cas:5")).to eql(nil)
+      end
+
+      it "returns false if no record exists in db" do
+        expect(@kt.cas("cas:6", "1", nil)).to eql(false)
+        expect(@kt.get("cas:6")).to eql(nil)
+      end
+    end
+  end
 end

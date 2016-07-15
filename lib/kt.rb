@@ -182,6 +182,40 @@ class KT
     return res
   end
 
+  # cas executes a compare and swap operation
+  # if both old and new provided it sets to new value if previous value is old value
+  # if no old value provided it will set to new value if key is not present in db
+  # if no new value provided it will remove the record if it exists
+  # it returns true if it succeded or false otherwise
+  def cas(key, oval = nil, nval = nil)
+    req = [KT::KV.new("key", key)]
+    if oval != nil
+      req << KT::KV.new("oval", oval)
+    end
+    if nval != nil
+      req << KT::KV.new("nval", nval)
+    end
+
+    status, body = do_rpc("/rpc/cas", req)
+
+    if status == 450
+      return false
+    end
+
+    if status != 200
+      raise_error(body)
+    end
+
+    return true
+  end
+
+  # cas! works the same as cas but it raises error on failure
+  def cas!(key, oval = nil, nval = nil)
+    if !cas(key, oval, nval)
+      raise KT::CASFailed.new("Failed compare and swap for #{key}")
+    end
+  end
+
   private
 
   def do_rpc(path, values=nil)
