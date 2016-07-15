@@ -78,4 +78,73 @@ describe KT do
       end
     end
   end
+
+  describe "bulk" do
+    it "returns nil hash for not found keys" do
+      expect(@kt.get_bulk(["foo1", "foo2", "foo3"])).to eql({})
+    end
+
+    it "returns hash with key value" do
+      expected = {
+        "cache/news/1" => "1",
+        "cache/news/2" => "2",
+        "cache/news/3" => "3",
+        "cache/news/4" => "4",
+        "cache/news/5" => "5",
+        "cache/news/6" => "6"
+      }
+      expected.each do |k, v|
+        @kt.set(k, v)
+      end
+
+      expect(@kt.get_bulk(expected.keys)).to eql(expected)
+    end
+
+    it "returns hash with found elements" do
+      @kt.set("foo4", "4")
+      @kt.set("foo5", "5")
+
+      expect(@kt.get_bulk(["foo4", "foo5", "foo6"])).to eql({"foo4" => "4", "foo5" => "5"})
+    end
+
+    it "set_bulk sets multiple keys" do
+      @kt.set_bulk({"foo7" => "7", "foo8" => "8", "foo9" => "9"})
+      expect(@kt.get_bulk(["foo7", "foo8", "foo9"])).to eql({"foo7" => "7", "foo8" => "8", "foo9" => "9"})
+    end
+
+    it "remove_bulk deletes bulk items" do
+      @kt.set_bulk({"foo7" => "7", "foo8" => "8", "foo9" => "9"})
+      @kt.remove_bulk(["foo7", "foo8", "foo9"])
+      expect(@kt.get_bulk(["foo7", "foo8", "foo9"])).to eql({})
+    end
+
+    it "returns the number of keys deleted" do
+      @kt.set_bulk({"foo7" => "7", "foo8" => "8", "foo9" => "9"})
+      expect(@kt.remove_bulk(["foo7", "foo8", "foo9", "foo1000"])).to eql(3)
+    end
+  end
+
+  describe "match_prefix" do
+    it "returns nothing for not found prefix" do
+      expect(@kt.match_prefix("user:", 100)).to eql([])
+    end
+
+    it "returns correct results sorted" do
+      @kt.set_bulk({"user:1" => "1", "user:2" => "2", "user:4" => "4"})
+      @kt.set_bulk({"user:3" => "3", "user:5" => "5"})
+      @kt.set_bulk({"usera" => "aaa", "users:bbb" => "bbb"})
+
+      expect(@kt.match_prefix("user:")).to eql(["user:1", "user:2", "user:3", "user:4", "user:5"])
+      # It returns the results in random order
+      expect(@kt.match_prefix("user:", 2).size).to eql(2)
+    end
+  end
+
+  describe "clear" do
+    it "clears the database" do
+      expect(@kt.count).to_not eql(0)
+      @kt.clear
+      expect(@kt.count).to eql(0)
+    end
+  end
 end

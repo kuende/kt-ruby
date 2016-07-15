@@ -84,7 +84,7 @@ class KT
     res = {}
 
     res_body.each do |kv|
-      if kv.key.starts_with?('_')
+      if kv.key.start_with?('_')
         res[kv.key[1, kv.key.size - 1]] = kv.value
       end
     end
@@ -155,6 +155,32 @@ class KT
     find_rec(body, "num").value.to_i
   end
 
+  # match_prefix performs the match_prefix operation against the server
+  # It returns a sorted list of keys.
+  # max_records defines the number of results to be returned
+  # if negative, it means unlimited
+  def match_prefix(prefix, max_records = -1)
+    req = [
+      KT::KV.new("prefix", prefix),
+      KT::KV.new("max", max_records.to_s)
+    ]
+
+    status, body = do_rpc("/rpc/match_prefix", req)
+
+    if status != 200
+      raise_error(body)
+    end
+
+    res = []
+
+    body.each do |kv|
+      if kv.key.start_with?('_')
+        res << kv.key[1, kv.key.size - 1]
+      end
+    end
+
+    return res
+  end
 
   private
 
@@ -235,28 +261,28 @@ class KT
       return "", IDENTITY_ENCODING
     end
 
-    has_binary = kv.any? do |kv|
+    has_binary = kv_list.any? do |kv|
       has_binary?(kv.key) || has_binary?(kv.value)
     end
 
-    str = String.build do |str|
-      kv.each do |kv|
-        if has_binary
-          str << Base64.strict_encode64(kv.key)
-          str << "\t"
-          str << Base64.strict_encode64(kv.value)
-        else
-          str << kv.key
-          str << "\t"
-          str << kv.value
-        end
-        str << "\n"
+    str = StringIO.new
+
+    kv_list.each do |kv|
+      if has_binary
+        str << Base64.strict_encode64(kv.key)
+        str << "\t"
+        str << Base64.strict_encode64(kv.value)
+      else
+        str << kv.key
+        str << "\t"
+        str << kv.value
       end
+      str << "\n"
     end
 
     encoding = has_binary ? BASE64_ENCODING : IDENTITY_ENCODING
 
-    return str, encoding
+    return str.string, encoding
   end
 
   def identity_decode(value)
