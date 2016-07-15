@@ -1,5 +1,6 @@
 require "excon"
 require "connection_pool"
+require "base64"
 require "kt/errors"
 require "kt/kv"
 require "kt/version"
@@ -320,15 +321,15 @@ class KT
   end
 
   def identity_decode(value)
-    value
+    value.force_encoding("utf-8")
   end
 
   def base64_decode(value)
-    Base64.strict_decode64(value)
+    Base64.strict_decode64(value).force_encoding("utf-8")
   end
 
   def url_decode(value)
-    URI.unescape(value)
+    URI.unescape(value).force_encoding("utf-8")
   end
 
   def url_encode(key)

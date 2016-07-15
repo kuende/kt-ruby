@@ -189,4 +189,19 @@ describe KT do
       end
     end
   end
+
+  describe "binary" do
+    it "sets binary and gets it" do
+      @kt.set_bulk({"Café" => "foo"})
+      expect(@kt.get("Café")).to eql("foo")
+
+      @kt.set_bulk({"foo" => "Café"})
+      expect(@kt.get_bulk(["foo"])).to eql({"foo" => "Café"})
+    end
+
+    it "sets string using newlines and gets it" do
+      @kt.set_bulk({"foo" => "my\n\ttest"})
+      expect(@kt.get_bulk(["foo"])).to eql({"foo" => "my\n\ttest"})
+    end
+  end
 end
