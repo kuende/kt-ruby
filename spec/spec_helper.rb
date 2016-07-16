@@ -2,6 +2,7 @@ require "rubygems"
 require "bundler/setup"
 
 require "kt"
+require "rspec/eventually"
 require "pry"
 require "open3"
 
