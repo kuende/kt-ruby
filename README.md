@@ -23,6 +23,7 @@ kt = KT.new(host: "127.0.0.1", port: 1978, poolsize: 5, timeout: 5.0)
 
 # Setting
 kt.set("japan", "tokyo") # set a key
+kt.set("japan", "tokyo", expire: 60) # set a key with expire of 60 seconds
 kt.set_bulk({"china" => "beijing", "france" => "paris", "uk" => "london"})
 
 kt.get("japan") # => "tokyo"
@@ -36,6 +37,7 @@ kt.remove!("japan") # => raises KT::RecordNotFound becouse key japan is not foun
 kt.remove_bulk(["japan", "china"]) # => 1 (number keys deleted)
 
 kt.clear # deletes all records in the database
+kt.vacuum # triggers forced garbage collection of expired records
 
 kt.set_bulk({"user:1" => "1", "user:2" => "2", "user:4" => "4"})
 kt.match_prefix("user:") # => ["user:1", "user:2", "user:3", "user:4", "user:5"]
