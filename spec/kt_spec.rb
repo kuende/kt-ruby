@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "spec_helper"
 
 describe KT do
@@ -75,6 +77,18 @@ describe KT do
         expect {
           @kt.remove!("not/existing")
         }.to raise_error(KT::RecordNotFound)
+      end
+    end
+
+    describe "set" do
+      it "accepts expire" do
+        @kt.set("expirekey", "expiredvalue", expire: 1)
+        expect(@kt.get("expirekey")).to eql("expiredvalue")
+        @kt.vacuum # trigger garbage collection
+
+        expect {
+          @kt.get("expirekey")
+        }.to eventually(eq(nil)).within(5)
       end
     end
   end

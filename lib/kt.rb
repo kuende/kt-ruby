@@ -44,6 +44,15 @@ class KT
     end
   end
 
+  # vacuum triggers garbage collection of expired records
+  def vacuum
+    status, m = do_rpc("/rpc/vacuum")
+
+    if status != 200
+      raise_error(m)
+    end
+  end
+
   # get retrieves the data stored at key.
   # It returns nil if no such data is found
   def get(key)
@@ -73,7 +82,7 @@ class KT
   # If a key was not found in the database, the value in return hash will be nil
   def get_bulk(keys)
     req = keys.map do |key|
-      KV.new("_#{key}", "")
+      KT::KV.new("_#{key}", "")
     end
 
     status, res_body = do_rpc("/rpc/get_bulk", req)
@@ -94,18 +103,27 @@ class KT
   end
 
   # set stores the data at key
-  def set(key, value)
-    status, body = do_rest("PUT", key, value)
+  def set(key, value, expire: nil)
+    req = [
+      KT::KV.new("key", key),
+      KT::KV.new("value", value),
+    ]
 
-    if status != 201
-      raise KT::Error.new(body)
+    if expire
+      req << KT::KV.new("xt", expire.to_s)
+    end
+
+    status, body = do_rpc("/rpc/set", req)
+
+    if status != 200
+      raise_error(body)
     end
   end
 
   # set_bulk sets multiple keys to multiple values
   def set_bulk(values)
     req = values.map do |key, value|
-      KV.new("_#{key}", value)
+      KT::KV.new("_#{key}", value)
     end
 
     status, body = do_rpc("/rpc/set_bulk", req)
