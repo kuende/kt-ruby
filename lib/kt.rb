@@ -111,7 +111,7 @@ class KT
       KT::KV.new("key", key),
     ]
 
-    status, res_body = do_rpc("/rpc/get", req)
+    status, res_body = do_rpc("/rpc/check", req)
 
     case status
     when 200
@@ -138,7 +138,7 @@ class KT
       KT::KV.new("key", key),
     ]
 
-    status, res_body = do_rpc("/rpc/get", req)
+    status, res_body = do_rpc("/rpc/check", req)
 
     case status
     when 200
