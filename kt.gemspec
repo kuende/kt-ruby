@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Teodor Pripoae"]
   spec.email         = ["toni@kuende.com"]
   spec.description   = %q{Kyoto Tycoon client}
-  spec.summary       = %q{Kyoto Tycoon client}
+  spec.summary       = %q{Kyoto Tycoon client for ruby. For more information see the Readme on github}
   spec.homepage      = "https://github.com/kuende/kt-ruby"
-  spec.license       = "Apache 2.0"
+  spec.license       = "Apache-2.0"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = []
@@ -19,11 +19,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "excon", "~> 0.51.0"
-  spec.add_dependency "connection_pool", "~> 2.2.0"
+  spec.add_dependency "connection_pool", "~> 2.2"
 
   # testing
-  spec.add_development_dependency "bundler", ">= 1.3"
-  spec.add_development_dependency "rspec", "~> 3.4.0"
-  spec.add_development_dependency "rspec-eventually", "~> 0.1.0"
-  spec.add_development_dependency "pry", "~> 0.10.4"
+  spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "rspec", "~> 3.4"
+  spec.add_development_dependency "rspec-eventually", "~> 0.1"
+  spec.add_development_dependency "pry", "~> 0.10"
 end
