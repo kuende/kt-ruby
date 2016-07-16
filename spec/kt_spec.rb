@@ -204,6 +204,52 @@ describe KT do
     end
   end
 
+  describe "ttl" do
+    it "returns -2 if key does not exist" do
+      expect(@kt.ttl("ttl/not/existing/key")).to eql(-2)
+    end
+
+    it "returns -1 if key exists but no ttl is set" do
+      @kt.set("ttl/no/expire/key", "1")
+      expect(@kt.ttl("ttl/no/expire/key")).to eql(-1)
+    end
+
+    it "returns ttl if key exists and it has ttl set" do
+      @kt.set("ttl/test/key/1", "1", expire: 3)
+      expect(@kt.ttl("ttl/test/key/1")).to eql(2)
+    end
+
+    it "returns ttl if key exists and it has ttl set to 5" do
+      @kt.set("ttl/test/key/2", "1", expire: 5)
+      expect(@kt.ttl("ttl/test/key/2")).to eql(4)
+    end
+  end
+
+  describe "pttl" do
+    it "returns -2 if key does not exist" do
+      expect(@kt.pttl("ttl/not/existing/key")).to eql(-2)
+    end
+
+    it "returns -1 if key exists but no ttl is set" do
+      @kt.set("ttl/no/expire/key", "1")
+      expect(@kt.pttl("ttl/no/expire/key")).to eql(-1)
+    end
+
+    it "returns ttl if key exists and it has ttl set" do
+      @kt.set("ttl/test/key/1", "1", expire: 3)
+      ttl = @kt.pttl("ttl/test/key/1")
+      expect(ttl < 3).to be_truthy
+      expect(ttl > 2).to be_truthy
+    end
+
+    it "returns ttl if key exists and it has ttl set to 5" do
+      @kt.set("ttl/test/key/2", "1", expire: 5)
+      ttl = @kt.pttl("ttl/test/key/2")
+      expect(ttl < 5).to be_truthy
+      expect(ttl > 4).to be_truthy
+    end
+  end
+
   describe "binary" do
     it "sets binary and gets it" do
       @kt.set_bulk({"Café" => "foo"})

@@ -102,6 +102,60 @@ class KT
     return res
   end
 
+  # ttl returns the time to live for a key in seconds
+  # if key does not exist, it returns -2
+  # if key exists but no ttl is set, it returns -1
+  # if key exists and it has a ttl, it returns the number of seconds remaining
+  def ttl(key)
+    req = [
+      KT::KV.new("key", key),
+    ]
+
+    status, res_body = do_rpc("/rpc/get", req)
+
+    case status
+    when 200
+      xt_pos = res_body.index{|kv| kv.key == "xt"}
+      if xt_pos != nil
+        expire_time = res_body[xt_pos].value.to_f
+        [(expire_time - Time.now.to_f).to_i, 0].max
+      else
+        -1
+      end
+    when 450
+      -2
+    else
+      raise_error(res_body)
+    end
+  end
+
+  # pttl returns the time to live for a key in milliseconds
+  # if key does not exist, it returns -2
+  # if key exists but no ttl is set, it returns -1
+  # if key exists and it has a ttl, it returns the number of milliseconds remaining
+  def pttl(key)
+    req = [
+      KT::KV.new("key", key),
+    ]
+
+    status, res_body = do_rpc("/rpc/get", req)
+
+    case status
+    when 200
+      xt_pos = res_body.index{|kv| kv.key == "xt"}
+      if xt_pos != nil
+        expire_time = res_body[xt_pos].value.to_f
+        [expire_time - Time.now.to_f, 0].max
+      else
+        -1
+      end
+    when 450
+      -2
+    else
+      raise_error(res_body)
+    end
+  end
+
   # set stores the data at key
   def set(key, value, expire: nil)
     req = [
