@@ -6,6 +6,8 @@ require "rspec/eventually"
 require "pry"
 require "open3"
 
+require "spec_support"
+
 HOST = "127.0.0.1"
 PORT = 1979
 

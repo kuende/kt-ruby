@@ -102,6 +102,20 @@ class KT
     return res
   end
 
+  # fetch retrives the keys from cache
+  # if key is found it returns the unmarshaled value
+  # if key is not found it runs the block sends the value and returns it
+  def fetch(key, &block)
+    value = get(key)
+    if value
+      Marshal::load(value)
+    else
+      block.call.tap do |value|
+        set(key, Marshal::dump(value))
+      end
+    end
+  end
+
   # ttl returns the time to live for a key in seconds
   # if key does not exist, it returns -2
   # if key exists but no ttl is set, it returns -1

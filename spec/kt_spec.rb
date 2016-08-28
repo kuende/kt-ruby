@@ -93,6 +93,79 @@ describe KT do
     end
   end
 
+  describe "fetch" do
+    it "fetches block if not found in cache" do
+      block_ran = false
+      user = @kt.fetch("my.key") do
+        block_ran = true
+        User.new(
+          :id => 1,
+          :name => "Aaa bbb",
+          :email => "foo@example.com",
+          :age => 20
+        )
+      end
+
+      expect(block_ran).to eql(true)
+      expect(user.id).to eql(1)
+      expect(user.name).to eql("Aaa bbb")
+      expect(user.email).to eql("foo@example.com")
+      expect(user.age).to eql(20)
+    end
+
+    it "fetches from cache if already in cache" do
+      block_ran = false
+      user1 = @kt.fetch("my.key2") do
+        block_ran = true
+        User.new(
+          :id => 1,
+          :name => "Aaa bbb",
+          :email => "foo@example.com",
+          :age => 20
+        )
+      end
+      expect(block_ran).to eql(true)
+
+      block_ran = false
+
+      user2 = @kt.fetch("my.key2") do
+        block_ran = true
+        User.new(
+          :id => 1,
+          :name => "Aaa bbb",
+          :email => "foo@example.com",
+          :age => 20
+        )
+      end
+
+      expect(block_ran).to eql(false)
+      expect(user1).to eql(user2)
+    end
+
+    it "sets cache if not found in cache" do
+      block_ran = false
+      user1 = @kt.fetch("my.key3") do
+        block_ran = true
+        User.new(
+          :id => 2,
+          :name => "Aaa ccc",
+          :email => "foo2@example.com",
+          :age => 30
+        )
+      end
+      expect(block_ran).to eql(true)
+
+      obj = @kt.get("my.key3")
+      user = Marshal::load(obj)
+      expect(user.id).to eql(2)
+      expect(user.name).to eql("Aaa ccc")
+      expect(user.email).to eql("foo2@example.com")
+      expect(user.age).to eql(30)
+
+      expect(user).to eql(user1)
+    end
+  end
+
   describe "bulk" do
     it "returns nil hash for not found keys" do
       expect(@kt.get_bulk(["foo1", "foo2", "foo3"])).to eql({})
