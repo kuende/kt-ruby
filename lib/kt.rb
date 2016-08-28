@@ -111,7 +111,9 @@ class KT
       Marshal::load(value)
     else
       block.call.tap do |value|
-        set(key, Marshal::dump(value))
+        unless value.nil?
+          set(key, Marshal::dump(value))
+        end
       end
     end
   end

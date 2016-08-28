@@ -164,6 +164,18 @@ describe KT do
 
       expect(user).to eql(user1)
     end
+
+    it "does not set cache if block returns nil" do
+      block_ran = false
+      user1 = @kt.fetch("my.key4") do
+        block_ran = true
+        nil
+      end
+      expect(block_ran).to eql(true)
+
+      obj = @kt.get("my.key4")
+      expect(obj).to eql(nil)
+    end
   end
 
   describe "bulk" do
