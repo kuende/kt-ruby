@@ -18,9 +18,12 @@ class KT
     @port = options.fetch(:port, 1978)
     @poolsize = options.fetch(:poolsize, 5)
     @timeout = options.fetch(:timeout, 5.0)
+    @connect_timeout = options.fetch(:connect_timeout, 0.5)
+    @read_timeout = options.fetch(:read_timeout, 0.5)
+    @write_timeout = options.fetch(:write_timeout, 0.5)
 
     @pool = ConnectionPool.new(size: @poolsize, timeout: @timeout) do
-      Excon.new("http://#{@host}:#{@port}")
+      Excon.new("http://#{@host}:#{@port}", :connect_timeout => @connect_timeout)
     end
   end
 
@@ -312,7 +315,13 @@ class KT
     headers = {"Content-Type" => encoding}
 
     @pool.with do |conn|
-      res = conn.post(:path => path, :headers => headers, :body => body)
+      res = conn.post(
+        :path => path,
+        :headers => headers,
+        :body => body,
+        :read_timeout => @read_timeout,
+        :write_timeout => @write_timeout,
+      )
       # return res.status_code, decode_values(res.body, res.headers.get("Content-Type").join("; "))
       return res.status, decode_values(res.body, res.headers["Content-Type"])
     end
@@ -320,7 +329,14 @@ class KT
 
   def do_rest(method, key, value="")
     @pool.with do |conn|
-      res = conn.request(:method => method, :path => url_encode(key), :headers => EMPTY_HEADERS, :body => value)
+      res = conn.request(
+        :method => method,
+        :path => url_encode(key),
+        :headers => EMPTY_HEADERS,
+        :body => value,
+        :read_timeout => @read_timeout,
+        :write_timeout => @write_timeout,
+      )
       return res.status, res.body
     end
   end
